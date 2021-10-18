@@ -46,7 +46,7 @@ function generatePipes() {
         x: 250,
         y: pipe1Height + gap,
         width: 80,
-        height: mapDimensions,
+        height: map.el.height - pipe1Height + gap,
         image: document.getElementById("pipe"),
     })
 }
