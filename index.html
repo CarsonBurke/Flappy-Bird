@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="materials/style.css">
+    <title>Flappy Bird</title>
+</head>
+
+<body>
+
+    <div class="uiParent">
+
+        <h3 class="uiHeader">Tick: <strong id="tick">0</strong></h3>
+
+        <h3 class="uiHeader">Generation: <strong id="generation">0</strong></h3>
+
+        <h3 class="uiHeader">Score: <strong id="score">0</strong></h3>
+
+        <h3 class="uiHeader">Best Score: <strong id="bestScore">0</strong></h3>
+
+    </div>
+
+    <img src="materials/images/bird.png" alt="" class="hide" id="bird">
+
+    <img src="materials/images/pipe.png" alt="" class="hide" id="pipe">
+
+    <img src="materials/images/background.png" alt="" class="hide" id="background">
+
+    <canvas class="map" id="map"></canvas>
+
+    <script src="materials/globalVars.js"></script>
+    <script src="materials/generateWorld.js"></script>
+    <script src="materials/neuralNetwork.js"></script>
+    <script src="materials/bird.js"></script>
+    <script src="materials/lodash.js"></script>
+    <script src="materials/run.js"></script>
+    <script src="materials/index.js"></script>
+
+</body>
+
+</html>
