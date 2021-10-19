@@ -14,41 +14,54 @@ function initializeMap() {
 
 function createBackground() {
 
-    let el = document.getElementById("background")
-
-    map.cr.drawImage(el, 0, 0)
+    new Sprite({
+        type: "background",
+        x: 0,
+        y: 0,
+        width: map.el.width,
+        height: map.el.height,
+        image: document.getElementById("background"),
+    }).draw()
 }
 
 function createBird() {
 
-    let el = document.getElementById("bird")
-
-    map.cr.drawImage(el, 10, map.el.height / 2, 51, 36)
+    new Sprite({
+        type: "bird",
+        x: map.el.width * 0.25,
+        y: map.el.height / 2,
+        width: 51,
+        height: 36,
+        image: document.getElementById("bird"),
+        velocity: 0,
+        lastFlap: 0,
+        avoidSides: true,
+    }).draw()
 }
 
 function generatePipes() {
 
-    let pipe1Height = Math.min(Math.max(map.el.height / 3, Math.random() * map.el.height), map.el.height / 0.5)
+    let pipe1Height = Math.min(Math.max(map.el.height * 0.35, Math.random() * map.el.height), map.el.height * 0.65)
 
     new Sprite({
         type: "pipe",
-        x: 250,
+        x: map.el.width + 80,
         y: 0,
         width: 80,
         height: pipe1Height,
-        image: document.getElementById("pipe"),
-    })
+        image: document.getElementById("pipeTop"),
+    }).draw()
 
-    let gap = 50
+    let gap = 90
 
     new Sprite({
         type: "pipe",
-        x: 250,
+        x: map.el.width + 80,
         y: pipe1Height + gap,
         width: 80,
         height: map.el.height - pipe1Height + gap,
-        image: document.getElementById("pipe"),
-    })
+        image: document.getElementById("pipeBottom"),
+    }).draw()
 }
 
 class Sprite {
@@ -72,10 +85,65 @@ class Sprite {
         //
 
         objects[this.type][this.id] = this
+    }
+    draw() {
+
+        map.cr.drawImage(this.image, this.x, this.y, this.width, this.height)
+    }
+    move(opts) {
+
+        //
+
+        for (let propertyName in opts) {
+
+            this[propertyName] = opts[propertyName]
+        }
+
+        //
+
+        if (this.avoidSides) {
+
+            if (this.x <= 0) this.x = 0
+            if (this.x + this.width >= map.el.width) this.x = map.el.width - this.width
+
+            //
+
+            if (this.y <= 0) this.y = 0
+            if (this.y + this.height >= map.el.height) this.y = map.el.height - this.height
+        }
+
+        //
+
+        // Store the current transformation matrix
+        map.cr.save()
+
+        // Use the identity matrix while clearing the canvas
+        map.cr.setTransform(1, 0, 0, 1, 0, 0)
+        map.cr.clearRect(0, 0, map.el.width, map.el.height)
+
+        // Restore the transform
+        map.cr.restore()
+
+        //
+
+        reDrawAll()
 
         //
 
         map.cr.drawImage(this.image, this.x, this.y, this.width, this.height)
+    }
+}
+
+function reDrawAll() {
+
+    for (let type in objects) {
+
+        for (let id in objects[type]) {
+
+            let object = objects[type][id]
+
+            object.draw()
+        }
     }
 }
 
@@ -147,9 +215,9 @@ function findRandomPos() {
     return pos
 }
 
-function generateSnake(opts) {
+function generateBird(opts) {
 
-    let type = "snake"
+    let type = "bird"
 
     let pos = { x: gridSize / 2, y: gridSize / 2 }
         /* let pos = { x: 0, y: 0 } */
@@ -189,9 +257,12 @@ function initWorld() {
 
     generatePipes()
 
+    let birdID = Object.keys(objects.bird)[0]
+    let bird = objects.bird[birdID]
+
     /* for (let i = 0; i < 100; i++) {
 
-        generateSnake({
+        generateBird({
             color: randomColor()
         })
     } */

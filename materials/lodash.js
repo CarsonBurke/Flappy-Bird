@@ -1754,7 +1754,7 @@
          * `min`, `minBy`, `multiply`, `noConflict`, `noop`, `now`, `nth`, `pad`,
          * `padEnd`, `padStart`, `parseInt`, `pop`, `random`, `reduce`, `reduceRight`,
          * `repeat`, `result`, `round`, `runInContext`, `sample`, `shift`, `size`,
-         * `snakeCase`, `some`, `sortedIndex`, `sortedIndexBy`, `sortedLastIndex`,
+         * `birdCase`, `some`, `sortedIndex`, `sortedIndexBy`, `sortedLastIndex`,
          * `sortedLastIndexBy`, `startCase`, `startsWith`, `stubArray`, `stubFalse`,
          * `stubObject`, `stubString`, `stubTrue`, `subtract`, `sum`, `sumBy`,
          * `template`, `times`, `toFinite`, `toInteger`, `toJSON`, `toLength`,
@@ -5162,8 +5162,7 @@
                 while (index--) {
                     args[index] = arguments[index];
                 }
-                var holders = (length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder) ?
-                    [] :
+                var holders = (length < 3 && args[0] !== placeholder && args[length - 1] !== placeholder) ? [] :
                     replaceHolders(args, placeholder);
 
                 length -= holders.length;
@@ -6316,8 +6315,7 @@
          */
         function initCloneObject(object) {
             return (typeof object.constructor == 'function' && !isPrototype(object)) ?
-                baseCreate(getPrototype(object)) :
-                {};
+                baseCreate(getPrototype(object)) : {};
         }
 
         /**
@@ -7102,8 +7100,7 @@
          */
         var difference = baseRest(function(array, values) {
             return isArrayLikeObject(array) ?
-                baseDifference(array, baseFlatten(values, 1, isArrayLikeObject, true)) :
-                [];
+                baseDifference(array, baseFlatten(values, 1, isArrayLikeObject, true)) : [];
         });
 
         /**
@@ -7138,8 +7135,7 @@
                 iteratee = undefined;
             }
             return isArrayLikeObject(array) ?
-                baseDifference(array, baseFlatten(values, 1, isArrayLikeObject, true), getIteratee(iteratee, 2)) :
-                [];
+                baseDifference(array, baseFlatten(values, 1, isArrayLikeObject, true), getIteratee(iteratee, 2)) : [];
         });
 
         /**
@@ -7171,8 +7167,7 @@
                 comparator = undefined;
             }
             return isArrayLikeObject(array) ?
-                baseDifference(array, baseFlatten(values, 1, isArrayLikeObject, true), undefined, comparator) :
-                [];
+                baseDifference(array, baseFlatten(values, 1, isArrayLikeObject, true), undefined, comparator) : [];
         });
 
         /**
@@ -7281,8 +7276,7 @@
          */
         function dropRightWhile(array, predicate) {
             return (array && array.length) ?
-                baseWhile(array, getIteratee(predicate, 3), true, true) :
-                [];
+                baseWhile(array, getIteratee(predicate, 3), true, true) : [];
         }
 
         /**
@@ -7322,8 +7316,7 @@
          */
         function dropWhile(array, predicate) {
             return (array && array.length) ?
-                baseWhile(array, getIteratee(predicate, 3), true) :
-                [];
+                baseWhile(array, getIteratee(predicate, 3), true) : [];
         }
 
         /**
@@ -7654,8 +7647,7 @@
         var intersection = baseRest(function(arrays) {
             var mapped = arrayMap(arrays, castArrayLikeObject);
             return (mapped.length && mapped[0] === arrays[0]) ?
-                baseIntersection(mapped) :
-                [];
+                baseIntersection(mapped) : [];
         });
 
         /**
@@ -7691,8 +7683,7 @@
                 mapped.pop();
             }
             return (mapped.length && mapped[0] === arrays[0]) ?
-                baseIntersection(mapped, getIteratee(iteratee, 2)) :
-                [];
+                baseIntersection(mapped, getIteratee(iteratee, 2)) : [];
         });
 
         /**
@@ -7725,8 +7716,7 @@
                 mapped.pop();
             }
             return (mapped.length && mapped[0] === arrays[0]) ?
-                baseIntersection(mapped, undefined, comparator) :
-                [];
+                baseIntersection(mapped, undefined, comparator) : [];
         });
 
         /**
@@ -8251,8 +8241,7 @@
          */
         function sortedUniq(array) {
             return (array && array.length) ?
-                baseSortedUniq(array) :
-                [];
+                baseSortedUniq(array) : [];
         }
 
         /**
@@ -8273,8 +8262,7 @@
          */
         function sortedUniqBy(array, iteratee) {
             return (array && array.length) ?
-                baseSortedUniq(array, getIteratee(iteratee, 2)) :
-                [];
+                baseSortedUniq(array, getIteratee(iteratee, 2)) : [];
         }
 
         /**
@@ -8401,8 +8389,7 @@
          */
         function takeRightWhile(array, predicate) {
             return (array && array.length) ?
-                baseWhile(array, getIteratee(predicate, 3), false, true) :
-                [];
+                baseWhile(array, getIteratee(predicate, 3), false, true) : [];
         }
 
         /**
@@ -8442,8 +8429,7 @@
          */
         function takeWhile(array, predicate) {
             return (array && array.length) ?
-                baseWhile(array, getIteratee(predicate, 3)) :
-                [];
+                baseWhile(array, getIteratee(predicate, 3)) : [];
         }
 
         /**
@@ -8689,8 +8675,7 @@
          */
         var without = baseRest(function(array, values) {
             return isArrayLikeObject(array) ?
-                baseDifference(array, values) :
-                [];
+                baseDifference(array, values) : [];
         });
 
         /**
@@ -9790,10 +9775,12 @@
          */
         var partition = createAggregator(function(result, value, key) {
             result[key ? 0 : 1].push(value);
-        }, function() { return [
+        }, function() {
+            return [
                 [],
                 []
-            ]; });
+            ];
+        });
 
         /**
          * Reduces `collection` to a value which is the accumulated result of running
@@ -14700,26 +14687,26 @@
 
         /**
          * Converts `string` to
-         * [snake case](https://en.wikipedia.org/wiki/Snake_case).
+         * [bird case](https://en.wikipedia.org/wiki/Bird_case).
          *
          * @static
          * @memberOf _
          * @since 3.0.0
          * @category String
          * @param {string} [string=''] The string to convert.
-         * @returns {string} Returns the snake cased string.
+         * @returns {string} Returns the bird cased string.
          * @example
          *
-         * _.snakeCase('Foo Bar');
+         * _.birdCase('Foo Bar');
          * // => 'foo_bar'
          *
-         * _.snakeCase('fooBar');
+         * _.birdCase('fooBar');
          * // => 'foo_bar'
          *
-         * _.snakeCase('--FOO-BAR--');
+         * _.birdCase('--FOO-BAR--');
          * // => 'foo_bar'
          */
-        var snakeCase = createCompounder(function(result, word, index) {
+        var birdCase = createCompounder(function(result, word, index) {
             return result + (index ? '_' : '') + word.toLowerCase();
         });
 
@@ -16959,7 +16946,7 @@
         lodash.runInContext = runInContext;
         lodash.sample = sample;
         lodash.size = size;
-        lodash.snakeCase = snakeCase;
+        lodash.birdCase = birdCase;
         lodash.some = some;
         lodash.sortedIndex = sortedIndex;
         lodash.sortedIndexBy = sortedIndexBy;

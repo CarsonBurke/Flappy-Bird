@@ -235,6 +235,7 @@ body {
     transition: all 0.2s;
     display: flex;
     flex-wrap: wrap;
+    overflow: scroll;
 }
 
 .hide {

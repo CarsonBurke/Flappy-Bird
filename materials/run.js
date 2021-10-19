@@ -295,6 +295,26 @@ function reproduce(bestBirds, birds, tick) {
     }
 }
 
+function findSprite(bird) {
+
+    if (bird.velocity == 0) return document.getElementById("bird")
+    if (bird.velocity < 0) return document.getElementById("birdUp")
+    if (bird.velocity > 0) return document.getElementById("birdDown")
+}
+
+function movePipes() {
+
+    for (let pipeID in objects.pipe) {
+
+        let pipe = objects.pipe[pipeID]
+
+        pipe.move({
+            x: pipe.x - 0.5,
+            y: pipe.y,
+        })
+    }
+}
+
 function updateUI() {
 
     // For each UI display update to current values
@@ -322,6 +342,10 @@ function run(opts) {
 
         tick += 1
 
+        movePipes()
+
+        if (tick % 500 == 0) generatePipes()
+
         runBatch()
 
         updateUI()
@@ -333,65 +357,64 @@ function run(opts) {
 
         for (let bird of birds) {
 
-            //
+            // Apply gravity
 
-            let closestFood = findClosestFood(bird)
+            bird.velocity += 0.005
 
-            let inputs = [closestFood.x, bird.x, closestFood.y, bird.y]
-            let outputCount = Object.keys(options).length
+            // Move bird
 
-            //
+            if (tick - 50 > bird.lastFlap) {
 
-            if (!bird.network) createNetwork(bird, {
-                inputCount: inputs.length,
-                outputCount: outputCount,
-            })
-
-            //
-
-            bird.network.run({ inputs: inputs })
-
-            //
-
-            changeDirection(bird)
-
-            //
-
-            moveBird(bird)
-
-            //
-
-            if (isBirdOnFood(bird, closestFood)) {
-
-                //
-
-                closestFood.el.remove()
-
-                //
-
-                delete objects.food[closestFood.id]
-
-                //
-
-                bird.score += 1
-                score += 1
-
-                //
-
-                generateFood({
-                    color: "#11dfd8"
+                bird.move({
+                    x: bird.x,
+                    y: bird.y + bird.velocity,
+                    image: findSprite(bird),
                 })
             }
+
+            //
+
+            document.addEventListener("keydown", moveBird)
+
+            function moveBird(event) {
+
+                let key = event.key
+
+                if (key == "w") {
+
+                    for (let birdID in objects.bird) {
+
+                        let bird = objects.bird[birdID]
+
+                        options.flap(bird, tick)
+                    }
+                }
+            }
+
+            //
+
+            //
+
+            /* let inputs = [bird.lastFlap - flapDelay, ]
+            let outputCount = Object.keys(options).length */
+
+            //
+
+            /* if (!bird.network) createNetwork(bird, {
+                inputCount: inputs.length,
+                outputCount: outputCount,
+            }) */
+
+            //
+
+            /* bird.network.run({ inputs: inputs }) */
+
+            //
         }
 
         //
 
-        let bestBirds = findBestBirds(birds)
-        if (bestBirds.length == 0) return
-
-        bestBirds = bestBirds.slice(0, 10)
-
-        let bestBird = bestBirds[0]
+        /* let bestBird = findBestBird(birds)
 
         bestBird.network.visualsParent.classList.add("visualsParentShow")
 
@@ -401,8 +424,8 @@ function run(opts) {
 
             // Reproduce with closest bird
 
-            reproduce(bestBirds, birds, tick)
-        }
+            reproduce(bestBird, birds, tick)
+        } */
     }
 }
 

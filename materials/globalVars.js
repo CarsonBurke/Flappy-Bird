@@ -3,6 +3,7 @@
 let properties = {
     mapDimensions: 500,
     gridPartSize: 25,
+    flapDelay: 150,
     nextId: 0,
     map: {
         el: document.getElementById("map"),

@@ -1,52 +1,31 @@
 let options = {
-    rotateCounterClockwise(snake) {
+    flap(bird, tick) {
 
-        switch (snake.direction) {
+        // Return if the bird has flapped too recently
 
-            case "up":
+        if (bird.lastFlap + flapDelay > tick) return
 
-                snake.direction = "left"
-                break
+        // Record that the bird has flapped
 
-            case "left":
+        bird.lastFlap = tick
 
-                snake.direction = "down"
-                break
+        // Set birds velocity lowest of 0 or itself
 
-            case "down":
+        bird.velocity = Math.min(bird.velocity, 0)
 
-                snake.direction = "right"
-                break
+        // Limit iterations
 
-            case "right":
+        let i = 15
 
-                snake.direction = "up"
-                break
-        }
-    },
-    rotateClockwise(snake) {
+        //
 
-        switch (snake.direction) {
+        setInterval(function() {
 
-            case "up":
+            if (i <= 0) return
 
-                snake.direction = "right"
-                break
+            bird.velocity -= i / 100
 
-            case "left":
-
-                snake.direction = "up"
-                break
-
-            case "down":
-
-                snake.direction = "left"
-                break
-
-            case "right":
-
-                snake.direction = "down"
-                break
-        }
-    },
+            i--
+        }, 10)
+    }
 }
