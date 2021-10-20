@@ -312,6 +312,10 @@ function movePipes() {
             x: pipe.x - 0.5,
             y: pipe.y,
         })
+
+        // If pipe is to the left of the canvas delete it
+
+        if (pipe.x < 0) delete objects[pipeID]
     }
 }
 

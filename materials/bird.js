@@ -9,7 +9,7 @@ let options = {
 
         bird.lastFlap = tick
 
-        // Set birds velocity lowest of 0 or itself
+        // Set birds velocity to 0 if above 0
 
         if (bird.velocity > 0) bird.velocity = 0
 

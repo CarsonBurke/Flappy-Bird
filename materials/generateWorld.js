@@ -29,7 +29,7 @@ function createBird() {
     new Sprite({
         type: "bird",
         x: map.el.width * 0.25,
-        y: map.el.height / 2,
+        y: Math.random() * map.el.height / 2,
         width: 51,
         height: 36,
         image: document.getElementById("bird"),
@@ -41,26 +41,48 @@ function createBird() {
 
 function generatePipes() {
 
-    let pipe1Height = Math.min(Math.max(map.el.height * 0.35, Math.random() * map.el.height), map.el.height * 0.65)
+    let gap = 100
+
+    let el = document.getElementById("pipeTop")
+
+    //
+
+    let pipe1Y = Math.random() * el.naturalHeight * -1
+
+    // Don't allow to be less than 0.3x map height
+
+    pip1Y = Math.max(el.naturalHeight * -1 + el.naturalHeight * 0.3, pipe1Y)
+
+    pipe1Y = Math.min(el.naturalHeight * -1 + el.naturalHeight * 0.7, pipe1Y)
+
+    //
 
     new Sprite({
         type: "pipe",
         x: map.el.width + 80,
-        y: 0,
-        width: 80,
-        height: pipe1Height,
-        image: document.getElementById("pipeTop"),
+        y: pipe1Y,
+        width: 50,
+        height: el.naturalHeight,
+        image: el,
+        passed: false,
     }).draw()
 
-    let gap = 90
+    el = document.getElementById("pipeBottom")
+
+    //
+
+    let pipe2Y = el.naturalHeight + pipe1Y + gap
+
+    //
 
     new Sprite({
         type: "pipe",
         x: map.el.width + 80,
-        y: pipe1Height + gap,
-        width: 80,
-        height: map.el.height - pipe1Height + gap,
-        image: document.getElementById("pipeBottom"),
+        y: pipe2Y,
+        width: 50,
+        height: el.naturalHeight,
+        image: el,
+        passed: false,
     }).draw()
 }
 
@@ -76,7 +98,7 @@ class Sprite {
 
         //
 
-        this.id = this.x * 50 + this.y
+        this.id = newId()
 
         //
 
@@ -256,14 +278,4 @@ function initWorld() {
     createBird()
 
     generatePipes()
-
-    let birdID = Object.keys(objects.bird)[0]
-    let bird = objects.bird[birdID]
-
-    /* for (let i = 0; i < 100; i++) {
-
-        generateBird({
-            color: randomColor()
-        })
-    } */
 }
