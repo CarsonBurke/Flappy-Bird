@@ -344,7 +344,7 @@ function run(opts) {
 
         movePipes()
 
-        if (tick % 500 == 0) generatePipes()
+        if (tick % 600 == 0) generatePipes()
 
         runBatch()
 
@@ -359,18 +359,13 @@ function run(opts) {
 
             // Apply gravity
 
-            bird.velocity += 0.005
+            bird.velocity += 0.004
 
-            // Move bird
+            // Regulate max acceleration
 
-            if (tick - 50 > bird.lastFlap) {
+            let maxSpeed = 1.2
 
-                bird.move({
-                    x: bird.x,
-                    y: bird.y + bird.velocity,
-                    image: findSprite(bird),
-                })
-            }
+            if (bird.velocity >= maxSpeed) bird.velocity = maxSpeed
 
             //
 
@@ -382,14 +377,18 @@ function run(opts) {
 
                 if (key == "w") {
 
-                    for (let birdID in objects.bird) {
-
-                        let bird = objects.bird[birdID]
-
-                        options.flap(bird, tick)
-                    }
+                    options.flap(bird, tick)
                 }
             }
+
+            // Move bird based on velocity
+
+            bird.move({
+                x: bird.x,
+                y: bird.y + bird.velocity,
+                image: findSprite(bird),
+            })
+
 
             //
 

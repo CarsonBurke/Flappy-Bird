@@ -11,21 +11,13 @@ let options = {
 
         // Set birds velocity lowest of 0 or itself
 
-        bird.velocity = Math.min(bird.velocity, 0)
+        if (bird.velocity > 0) bird.velocity = 0
 
-        // Limit iterations
+        // Add onto birds velocity at decreasing amounts
 
-        let i = 15
-
-        //
-
-        setInterval(function() {
-
-            if (i <= 0) return
+        for (let i = 10; i > 0; i--) {
 
             bird.velocity -= i / 100
-
-            i--
-        }, 10)
+        }
     }
 }
