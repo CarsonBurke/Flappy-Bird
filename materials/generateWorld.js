@@ -133,26 +133,6 @@ class Sprite {
             if (this.y <= 0) this.y = 0
             if (this.y + this.height >= map.el.height) this.y = map.el.height - this.height
         }
-
-        //
-
-        // Store the current transformation matrix
-        map.cr.save()
-
-        // Use the identity matrix while clearing the canvas
-        map.cr.setTransform(1, 0, 0, 1, 0, 0)
-        map.cr.clearRect(0, 0, map.el.width, map.el.height)
-
-        // Restore the transform
-        map.cr.restore()
-
-        //
-
-        reDrawAll()
-
-        //
-
-        map.cr.drawImage(this.image, this.x, this.y, this.width, this.height)
     }
 }
 

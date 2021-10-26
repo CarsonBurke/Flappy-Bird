@@ -309,14 +309,33 @@ function movePipes() {
         let pipe = objects.pipe[pipeID]
 
         pipe.move({
-            x: pipe.x - 0.5,
+            x: pipe.x - 0.4,
             y: pipe.y,
         })
 
         // If pipe is to the left of the canvas delete it
 
-        if (pipe.x < 0) delete objects[pipeID]
+        if (pipe.x + pipe.width < 0) delete objects.pipe[pipeID]
     }
+}
+
+function updateObjectPositions() {
+
+    // Clear canvas
+
+            // Store the current transformation matrix
+            map.cr.save()
+
+            // Use the identity matrix while clearing the canvas
+            map.cr.setTransform(1, 0, 0, 1, 0, 0)
+            map.cr.clearRect(0, 0, map.el.width, map.el.height)
+    
+            // Restore the transform
+            map.cr.restore()
+
+    // re-draw all objects
+
+    reDrawAll()
 }
 
 function updateUI() {
@@ -348,9 +367,13 @@ function run(opts) {
 
         movePipes()
 
-        if (tick % 600 == 0) generatePipes()
+        // If tick is divisible by 750 spawn new pipes
+
+        if (tick % 750 == 0) generatePipes()
 
         runBatch()
+
+        updateObjectPositions()
 
         updateUI()
     }
