@@ -320,6 +320,10 @@ function run(opts) {
 
         for (let bird of birds) {
 
+            // Stop loop if there is only 1 bird
+
+            if (Object.keys(objects.bird).length == 1) break
+
             // Apply gravity
 
             bird.velocity += 0.004
@@ -378,8 +382,8 @@ function run(opts) {
 
             //
 
-            let inputs = [bird.y, closestTopPipe.y - closestTopPipe.height]
-            let outputCount = Object.keys(options).length
+            const inputs = [bird.y, gapHeight / 2 - (map.el.height + closestTopPipe.y)]
+            const outputCount = Object.keys(options).length
 
             //
 
@@ -428,7 +432,30 @@ function run(opts) {
 
                 const pipe = objects.pipe[pipeID]
 
-                
+                if (pipe.pipeType == 'top') {
+
+                    // If bird is inside pipe
+
+                    if (bird.x >= pipe.x && bird.x <= pipe.x + pipe.width && bird.y <= map.el.height + pipe.y) {
+
+                        // Delete bird
+
+                        delete objects.bird[bird.id]
+                    }
+
+                    continue
+                }
+                if (pipe.pipeType == 'top') {
+
+                    // If bird is inside pipe
+
+                    if (bird.x >= pipe.x && bird.x <= pipe.x + pipe.width && bird.y >= map.el.height + pipe.y) {
+
+                        // Delete bird
+
+                        delete objects.bird[bird.id]
+                    }                    
+                }
             }
         }
 
@@ -444,7 +471,7 @@ function run(opts) {
 
         bestBird.network.updateVisuals()
 
-        /* if (tick - lastReset >= gridSize * 4) {
+        /* if (birds.length == 1) {
 
             // Reproduce with closest bird
 

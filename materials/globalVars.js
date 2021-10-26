@@ -5,6 +5,7 @@ let properties = {
     gridPartSize: 25,
     flapDelay: 100,
     nextId: 0,
+    gapHeight: 100,
     map: {
         el: document.getElementById("map"),
         positions: [],

@@ -24,7 +24,7 @@ function createBackground() {
     }).draw()
 }
 
-function createBird() {
+function createBird(opts) {
 
     new Sprite({
         type: "bird",
@@ -37,12 +37,11 @@ function createBird() {
         lastFlap: 0,
         avoidSides: true,
         score: 0,
+        network: opts.network || undefined
     }).draw()
 }
 
 function generatePipes() {
-
-    let gap = 100
 
     let el = document.getElementById("pipeTop")
 
@@ -66,13 +65,14 @@ function generatePipes() {
         height: el.naturalHeight,
         image: el,
         passed: false,
+        pipeType: 'top',
     }).draw()
 
     el = document.getElementById("pipeBottom")
 
     //
 
-    let pipe2Y = el.naturalHeight + pipe1Y + gap
+    let pipe2Y = el.naturalHeight + pipe1Y + gapHeight
 
     //
 
@@ -84,6 +84,7 @@ function generatePipes() {
         height: el.naturalHeight,
         image: el,
         passed: false,
+        pipeType: 'bottom',
     }).draw()
 }
 
@@ -224,7 +225,7 @@ function initWorld() {
 
     createBackground()
 
-    for (let i = 0; i < 10; i++) createBird()
+    for (let i = 0; i < 100; i++) createBird({})
 
     generatePipes()
 }
