@@ -1,11 +1,11 @@
 // Assign variables
 
 let properties = {
-    mapDimensions: 500,
+    mapDimensions: 700,
     gridPartSize: 25,
     flapDelay: 100,
     nextId: 0,
-    gapHeight: 100,
+    gapHeight: 140,
     map: {
         el: document.getElementById("map"),
         positions: [],

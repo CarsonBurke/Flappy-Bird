@@ -37,6 +37,7 @@ function createBird(opts) {
         lastFlap: 0,
         avoidSides: true,
         score: 0,
+        pipesPassed: 0,
         network: opts.network || undefined
     }).draw()
 }
@@ -51,7 +52,7 @@ function generatePipes() {
 
     // Don't allow to be less than 0.3x map height
 
-    pip1Y = Math.max(el.naturalHeight * -1 + el.naturalHeight * 0.3, pipe1Y)
+    pipe1Y = Math.max(el.naturalHeight * -1 + el.naturalHeight * 0.2, pipe1Y)
 
     pipe1Y = Math.min(el.naturalHeight * -1 + el.naturalHeight * 0.7, pipe1Y)
 

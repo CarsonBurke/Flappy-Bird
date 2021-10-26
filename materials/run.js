@@ -2,6 +2,7 @@ let tick = 0
 let generation = 0
 let lastReset = 0
 let bestScore = 0
+let mostPipesPassed = 0
 
 function createNetwork(bird, inputCount, outputCount) {
 
@@ -11,7 +12,7 @@ function createNetwork(bird, inputCount, outputCount) {
 
     // Create layers
 
-    let layerCount = 3
+    let layerCount = 2
 
     for (let i = 0; i < layerCount; i++) network.addLayer({})
 
@@ -73,34 +74,6 @@ function changeDirection(bird) {
 
         option(bird)
     }
-}
-
-function getFoodArray() {
-
-    let foodArray = []
-
-    for (let foodID in objects.food) {
-
-        let food = objects.food[foodID]
-
-        foodArray.push(food)
-    }
-
-    return foodArray
-}
-
-function getBirdArray() {
-
-    let birdArray = []
-
-    for (let birdID in objects.bird) {
-
-        let bird = objects.bird[birdID]
-
-        birdArray.push(bird)
-    }
-
-    return birdArray
 }
 
 function findDistance(pos1, pos2) {
@@ -185,47 +158,57 @@ function findBestBirds(birds) {
     return bestBirds
 }
 
-function reproduce(bestBirds, birds, tick) {
+function reproduce(bestBird, birds, tick) {
 
     // Record stats
 
     generation++
     lastReset = tick
 
+    // Delete all game objects
+
+    for (let type in objects) {
+
+        for (let objectID in objects[type]) {
+
+            delete objects[type][objectID]
+        }
+    }
+
     // Loop through layers
 
     for (let bird of birds) {
 
-        // Delete el
-
-        let el = bird.el
-        el.remove()
-
-        //
+        // Hide visuals
 
         bird.network.visualsParent.classList.remove("visualsParentShow")
+
+        // Iterate if bird is bestBird
+
+        if (bird.id == bestBird.id) continue
 
         // Delete bird
 
         delete objects.bird[bird.id]
     }
 
+    createBackground()
+
+    generatePipes()
+
     // Create new birds
 
-    for (let i = 0; i < bestBirds.length; i++) {
+    for (let i = 0; i < 100; i++) {
 
-        let bird = bestBirds[i]
+        const duplicateNetwork = _.cloneDeep(bestBird.network)
+        duplicateNetwork.learn()
 
-        let childAmount = Math.floor(bestBirds.length / 10) * 10
-
-        for (let i = 0; i < childAmount; i++) {
-
-            let duplicateNetwork = _.cloneDeep(bird.network)
-            duplicateNetwork.learn()
-
-            generateBird({ network: duplicateNetwork, color: bird.color })
-        }
+        createBird({ network: duplicateNetwork })
     }
+
+    // Delete bestBird
+
+    delete objects.bird[bestBird.id]
 }
 
 function findBestBird(birds) {
@@ -262,15 +245,15 @@ function updateObjectPositions() {
 
     // Clear canvas
 
-            // Store the current transformation matrix
-            map.cr.save()
+    // Store the current transformation matrix
+    map.cr.save()
 
-            // Use the identity matrix while clearing the canvas
-            map.cr.setTransform(1, 0, 0, 1, 0, 0)
-            map.cr.clearRect(0, 0, map.el.width, map.el.height)
-    
-            // Restore the transform
-            map.cr.restore()
+    // Use the identity matrix while clearing the canvas
+    map.cr.setTransform(1, 0, 0, 1, 0, 0)
+    map.cr.clearRect(0, 0, map.el.width, map.el.height)
+
+    // Restore the transform
+    map.cr.restore()
 
     // re-draw all objects
 
@@ -291,6 +274,9 @@ function updateUI() {
 
     el = document.getElementById("bestScore")
     el.innerText = bestScore
+
+    el = document.getElementById("mostPipesPassed")
+    el.innerText = mostPipesPassed
 }
 
 function run(opts) {
@@ -305,7 +291,7 @@ function run(opts) {
 
         // If tick is divisible by 750 spawn new pipes
 
-        if (tick % 750 == 0) generatePipes()
+        if (tick - lastReset >= 750 && tick % 750 == 0) generatePipes()
 
         runBatch()
 
@@ -316,7 +302,7 @@ function run(opts) {
 
     function runBatch() {
 
-        let birds = getBirdArray()
+        let birds = Object.values(objects.bird)
 
         for (let bird of birds) {
 
@@ -324,9 +310,13 @@ function run(opts) {
 
             if (Object.keys(objects.bird).length == 1) break
 
+            // Assign score
+
+            bird.score += 1
+
             // Apply gravity
 
-            bird.velocity += 0.004
+            bird.velocity += 0.005
 
             // Regulate max acceleration
 
@@ -336,30 +326,6 @@ function run(opts) {
 
             if (bird.velocity >= maxSpeed) bird.velocity = maxSpeed
 
-            // See if bird has passed pipes
-
-            for (let pipeID in objects.pipe) {
-
-                const pipe = objects.pipe[pipeID]
-                
-                // Iterate is pipe is recorded passed
-
-                if (pipe.passed) continue
-
-                // If pipe was just passed
-
-                if (pipe.x + pipe.width < bird.x) {
-
-                    // Record the pipe is passed
-                    
-                    pipe.passed = true
-
-                    // Increase bird's score
-
-                    bird.score += 0.5
-                }
-            }
-
             function findClosestPipe() {
 
                 for (let pipeID in objects.pipe) {
@@ -368,7 +334,7 @@ function run(opts) {
 
                     // Iterate if pipe is behind bird
 
-                    if (pipe.passed) continue
+                    if (pipe.x + pipe.width < bird.x) continue
 
                     // Return the pipe
 
@@ -382,7 +348,8 @@ function run(opts) {
 
             //
 
-            const inputs = [bird.y, gapHeight / 2 - (map.el.height + closestTopPipe.y)]
+            const inputs = [bird.y, gapHeight / 2 - (map.el.height + closestTopPipe.y), bird.velocity]
+            /* const inputs = [bird.y, gapHeight / 2 - (map.el.height + closestTopPipe.y), (bird.x + bird.width) - closestTopPipe.x] */
             const outputCount = Object.keys(options).length
 
             //
@@ -432,11 +399,24 @@ function run(opts) {
 
                 const pipe = objects.pipe[pipeID]
 
+                // If pipe hasn't been recorded as passed and is passed
+
+                if (!pipe.passed && bird.x > pipe.x + pipe.width) {
+
+                    // Increase bird's pipePassed
+
+                    bird.pipesPassed += 0.5
+
+                    // Record pipe as passed
+
+                    pipe.passed = true
+                }
+
                 if (pipe.pipeType == 'top') {
 
                     // If bird is inside pipe
 
-                    if (bird.x >= pipe.x && bird.x <= pipe.x + pipe.width && bird.y <= map.el.height + pipe.y) {
+                    if (bird.x + bird.width >= pipe.x && bird.x <= pipe.x && bird.y <= map.el.height + pipe.y) {
 
                         // Delete bird
 
@@ -445,38 +425,44 @@ function run(opts) {
 
                     continue
                 }
-                if (pipe.pipeType == 'top') {
+                if (pipe.pipeType == 'bottom') {
 
                     // If bird is inside pipe
 
-                    if (bird.x >= pipe.x && bird.x <= pipe.x + pipe.width && bird.y >= map.el.height + pipe.y) {
+                    if (bird.x + bird.width >= pipe.x && bird.x <= pipe.x && bird.y + bird.height >= pipe.y) {
 
                         // Delete bird
-
+                        
                         delete objects.bird[bird.id]
-                    }                    
+                    }
+                    
+                    continue
                 }
             }
+
+            bird.network.visualsParent.classList.remove('visualsParentShow')
         }
 
         //
 
         let bestBird = findBestBird(birds)
 
-        // Assign bird's score to bestScore if bird's score is better
+        if (bestBird.pipesPassed > mostPipesPassed) mostPipesPassed = bestBird.pipesPassed
 
-        if(bird.score > bestScore) bestScore = bestBird.score
+        // Assign bird's score to bestScore if bird's score is better
+        
+        if(bestBird.score > bestScore) bestScore = bestBird.score
 
         bestBird.network.visualsParent.classList.add("visualsParentShow")
 
         bestBird.network.updateVisuals()
 
-        /* if (birds.length == 1) {
+        if (birds.length == 1) {
 
-            // Reproduce with closest bird
+            // Reproduce with alive bird
 
-            reproduce(bestBird, birds, tick)
-        } */
+            reproduce(bestBird, Object.values(objects.bird), tick)
+        }
     }
 }
 

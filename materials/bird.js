@@ -15,6 +15,6 @@ let options = {
 
         // Add onto birds velocity at decreasing amounts
 
-        bird.velocity -= 0.5
+        bird.velocity -= 0.7
     }
 }
