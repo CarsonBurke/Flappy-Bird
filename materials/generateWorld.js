@@ -36,6 +36,7 @@ function createBird() {
         velocity: 0,
         lastFlap: 0,
         avoidSides: true,
+        score: 0,
     }).draw()
 }
 
@@ -217,45 +218,13 @@ function findRandomPos() {
     return pos
 }
 
-function generateBird(opts) {
-
-    let type = "bird"
-
-    let pos = { x: gridSize / 2, y: gridSize / 2 }
-        /* let pos = { x: 0, y: 0 } */
-
-    placeObject({
-        type: type,
-        x: pos.x,
-        y: pos.y,
-        direction: "up",
-        score: 0,
-        color: opts.color,
-        network: opts.network
-    })
-}
-
-function generateFood(opts) {
-
-    let type = "food"
-
-    let pos = findRandomPos()
-
-    placeObject({
-        type: type,
-        x: pos.x,
-        y: pos.y,
-        color: opts.color
-    })
-}
-
 function initWorld() {
 
     initializeMap()
 
     createBackground()
 
-    createBird()
+    for (let i = 0; i < 10; i++) createBird()
 
     generatePipes()
 }

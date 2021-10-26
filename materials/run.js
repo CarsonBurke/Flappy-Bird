@@ -1,10 +1,9 @@
 let tick = 0
 let generation = 0
 let lastReset = 0
-let score = 0
 let bestScore = 0
 
-function createNetwork(bird, opts) {
+function createNetwork(bird, inputCount, outputCount) {
 
     // Create neural network
 
@@ -20,7 +19,7 @@ function createNetwork(bird, opts) {
 
     // Create input perceptrons
 
-    network.layers[0].addPerceptrons(opts.inputCount)
+    for (let i = 0; i < inputCount; i++) network.layers[0].addPerceptron()
 
     // Create hidden perceptrons
 
@@ -38,83 +37,21 @@ function createNetwork(bird, opts) {
 
             let layer = network.layers[layerName]
 
-            layer.addPerceptrons(hiddenPerceptronsNeed)
+            for (let i = 0; i < hiddenPerceptronsNeed; i++) layer.addPerceptron()
         }
     }
 
     // Create output perceptrons
 
-    network.layers[layerCount - 1].addPerceptrons(opts.outputCount)
+    for (let i = 0; i < outputCount; i++) network.layers[layerCount - 1].addPerceptron()
 
     //
 
-    network.config()
+    network.createVisuals()
 
     //
 
     bird.network = network
-}
-
-function moveUp(bird) {
-
-    if (bird.y <= 0) return
-
-    bird.y -= 1
-
-    setPosition(bird)
-}
-
-function moveLeft(bird) {
-
-    if (bird.x <= 0) return
-
-    bird.x -= 1
-
-    setPosition(bird)
-}
-
-function moveDown(bird) {
-
-    if (bird.y >= gridSize - 1) return
-
-    bird.y += 1
-
-    setPosition(bird)
-}
-
-function moveRight(bird) {
-
-    if (bird.x >= gridSize - 1) return
-
-    bird.x += 1
-
-    setPosition(bird)
-}
-
-function moveBird(bird) {
-
-    switch (bird.direction) {
-
-        case "up":
-
-            moveUp(bird)
-            break
-
-        case "left":
-
-            moveLeft(bird)
-            break
-
-        case "down":
-
-            moveDown(bird)
-            break
-
-        case "right":
-
-            moveRight(bird)
-            break
-    }
 }
 
 
@@ -255,10 +192,6 @@ function reproduce(bestBirds, birds, tick) {
     generation++
     lastReset = tick
 
-    if (score > bestScore) bestScore = score
-
-    score = 0
-
     // Loop through layers
 
     for (let bird of birds) {
@@ -293,6 +226,12 @@ function reproduce(bestBirds, birds, tick) {
             generateBird({ network: duplicateNetwork, color: bird.color })
         }
     }
+}
+
+function findBestBird(birds) {
+
+    const bestBirds = birds.sort(function(a, b) { a.score - b.score })
+    return bestBirds[0]
 }
 
 function findSprite(bird) {
@@ -350,9 +289,6 @@ function updateUI() {
     el = document.getElementById("generation")
     el.innerText = generation
 
-    el = document.getElementById("score")
-    el.innerText = score
-
     el = document.getElementById("bestScore")
     el.innerText = bestScore
 }
@@ -392,20 +328,83 @@ function run(opts) {
 
             let maxSpeed = 1.2
 
+            // If birds velocity is greater or equal to maxSpeed set to maxSpeed
+
             if (bird.velocity >= maxSpeed) bird.velocity = maxSpeed
+
+            // See if bird has passed pipes
+
+            for (let pipeID in objects.pipe) {
+
+                const pipe = objects.pipe[pipeID]
+                
+                // Iterate is pipe is recorded passed
+
+                if (pipe.passed) continue
+
+                // If pipe was just passed
+
+                if (pipe.x + pipe.width < bird.x) {
+
+                    // Record the pipe is passed
+                    
+                    pipe.passed = true
+
+                    // Increase bird's score
+
+                    bird.score += 0.5
+                }
+            }
+
+            function findClosestPipe() {
+
+                for (let pipeID in objects.pipe) {
+
+                    const pipe = objects.pipe[pipeID]
+
+                    // Iterate if pipe is behind bird
+
+                    if (pipe.passed) continue
+
+                    // Return the pipe
+
+                    return pipe
+                }
+            }
 
             //
 
-            document.addEventListener("keydown", moveBird)
+            const closestTopPipe = findClosestPipe()
 
-            function moveBird(event) {
+            //
 
-                let key = event.key
+            let inputs = [bird.y, closestTopPipe.y - closestTopPipe.height]
+            let outputCount = Object.keys(options).length
 
-                if (key == "w") {
+            //
 
-                    options.flap(bird, tick)
-                }
+            if (!bird.network) createNetwork(bird,  inputs.length, outputCount)
+
+            //
+
+            bird.network.forwardPropagate(inputs)
+
+            //
+
+            const lastLayer = bird.network.layers[Object.keys(bird.network.layers).length - 1]
+
+            // Loop through each perceptron in the lastLayer
+        
+            for (let perceptronName in lastLayer.perceptrons) {
+        
+                let perceptron = lastLayer.perceptrons[perceptronName]
+        
+                if (perceptron.activateValue <= 0) continue
+        
+                //
+        
+                options.flap(bird, tick)
+                break
             }
 
             // Move bird based on velocity
@@ -416,37 +415,36 @@ function run(opts) {
                 image: findSprite(bird),
             })
 
+            // Apply map hitboxes
 
-            //
+            if (bird.x == 0) delete objects.bird[bird.id]
+            if (bird.x + bird.width == map.el.width) delete objects.bird[bird.id]
+            if (bird.y == 0) delete objects.bird[bird.id]
+            if (bird.y + bird.height >= map.el.height) delete objects.bird[bird.id]
 
-            //
+            // apply pipe hitboxes
 
-            /* let inputs = [bird.lastFlap - flapDelay, ]
-            let outputCount = Object.keys(options).length */
+            for (let pipeID in objects.pipe) {
 
-            //
+                const pipe = objects.pipe[pipeID]
 
-            /* if (!bird.network) createNetwork(bird, {
-                inputCount: inputs.length,
-                outputCount: outputCount,
-            }) */
-
-            //
-
-            /* bird.network.run({ inputs: inputs }) */
-
-            //
+                
+            }
         }
 
         //
 
-        /* let bestBird = findBestBird(birds)
+        let bestBird = findBestBird(birds)
+
+        // Assign bird's score to bestScore if bird's score is better
+
+        if(bird.score > bestScore) bestScore = bestBird.score
 
         bestBird.network.visualsParent.classList.add("visualsParentShow")
 
         bestBird.network.updateVisuals()
 
-        if (tick - lastReset >= gridSize * 4) {
+        /* if (tick - lastReset >= gridSize * 4) {
 
             // Reproduce with closest bird
 
