@@ -1,6 +1,7 @@
 let tick = 0
 let generation = 0
 let lastReset = 0
+let birdsCount = 0
 let bestScore = 0
 let mostPipesPassed = 0
 
@@ -171,8 +172,8 @@ function updateUI() {
     el = document.getElementById("generation")
     el.innerText = generation
 
-    el = document.getElementById("bestScore")
-    el.innerText = bestScore
+    el = document.getElementById("birds")
+    el.innerText = birdsCount
 
     el = document.getElementById("mostPipesPassed")
     el.innerText = mostPipesPassed
@@ -202,6 +203,7 @@ function run(opts) {
     function runBatch() {
 
         const birds = Object.values(objects.bird)
+        birdsCount = birds.length
 
         for (const bird of birds) {
 
@@ -248,7 +250,7 @@ function run(opts) {
             //
 
             /* const inputs = [bird.y, closestTopPipe.y + closestTopPipe.height + map.el.height, bird.velocity] */
-            const inputs = [bird.y, gapHeight - (map.el.height + closestTopPipe.y), (bird.x + bird.width) - closestTopPipe.x]
+            const inputs = [bird.y, gapHeight - (map.el.height + closestTopPipe.y), bird.x + bird.width - closestTopPipe.x, bird.velocity]
             const outputCount = Object.keys(options).length
 
             //
