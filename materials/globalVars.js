@@ -3,9 +3,9 @@
 let properties = {
     mapDimensions: 700,
     gridPartSize: 25,
-    flapDelay: 100,
+    flapDelay: 80,
     nextId: 0,
-    gapHeight: 120,
+    gapHeight: 130,
     map: {
         el: document.getElementById("map"),
         positions: [],

@@ -33,7 +33,7 @@ function createBird(opts) {
         x: map.el.width * 0.25,
         y: Math.random() * map.el.height / 2,
         width: 42.5,
-        height:30,
+        height: 30,
         image: document.getElementById("bird"),
         velocity: 0,
         lastFlap: 0,
@@ -56,7 +56,7 @@ function generatePipes() {
 
     pipe1Y = Math.max(el.naturalHeight * -1 + el.naturalHeight * 0.2, pipe1Y)
 
-    pipe1Y = Math.min(el.naturalHeight * -1 + el.naturalHeight * 0.7, pipe1Y)
+    pipe1Y = Math.min(el.naturalHeight * -1 + el.naturalHeight * 0.8, pipe1Y)
 
     //
 

@@ -248,12 +248,12 @@ function run(opts) {
             //
 
             /* const inputs = [bird.y, closestTopPipe.y + closestTopPipe.height + map.el.height, bird.velocity] */
-            const inputs = [bird.y, gapHeight / 2 - (map.el.height + closestTopPipe.y), (bird.x + bird.width) - closestTopPipe.x]
+            const inputs = [bird.y, gapHeight - (map.el.height + closestTopPipe.y), (bird.x + bird.width) - closestTopPipe.x]
             const outputCount = Object.keys(options).length
 
             //
 
-            if (!bird.network) createNetwork(bird,  inputs.length, outputCount)
+            if (!bird.network) createNetwork(bird, inputs.length, outputCount)
 
             //
 
@@ -264,15 +264,15 @@ function run(opts) {
             const lastLayer = bird.network.layers[Object.keys(bird.network.layers).length - 1]
 
             // Loop through each perceptron in the lastLayer
-        
+
             for (let perceptronName in lastLayer.perceptrons) {
-        
+
                 let perceptron = lastLayer.perceptrons[perceptronName]
-        
+
                 if (perceptron.activateValue <= 0) continue
-        
+
                 //
-        
+
                 options.flap(bird, tick)
                 break
             }
@@ -293,7 +293,7 @@ function run(opts) {
             if (bird.y + bird.height >= map.el.height) delete objects.bird[bird.id]
 
             //
-            
+
             function isBirdInsidePipe(pipe) {
 
                 if (bird.x > pipe.x + pipe.width) return
@@ -331,7 +331,7 @@ function run(opts) {
                     pipe.passed = true
                 }
 
-                if(isBirdInsidePipe(pipe)) {
+                if (isBirdInsidePipe(pipe)) {
 
                     delete objects.bird[bird.id]
                 }
@@ -354,8 +354,8 @@ function run(opts) {
         if (bestBird.pipesPassed > mostPipesPassed) mostPipesPassed = bestBird.pipesPassed
 
         // Assign bird's score to bestScore if bird's score is better
-        
-        if(bestBird.score > bestScore) bestScore = bestBird.score
+
+        if (bestBird.score > bestScore) bestScore = bestBird.score
 
         bestBird.network.visualsParent.classList.add("visualsParentShow")
 
