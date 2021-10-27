@@ -26,12 +26,14 @@ function createBackground() {
 
 function createBird(opts) {
 
+    // Width:Height of 17:12
+
     new Sprite({
         type: "bird",
         x: map.el.width * 0.25,
         y: Math.random() * map.el.height / 2,
-        width: 51,
-        height: 36,
+        width: 42.5,
+        height:30,
         image: document.getElementById("bird"),
         velocity: 0,
         lastFlap: 0,
