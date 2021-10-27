@@ -14,6 +14,8 @@ class Line {
         }
 
         this.connected = true
+        this.date = new Date()
+        this.lastConnection = this.date.getTime()
 
         // Create element
 
@@ -538,7 +540,13 @@ class NeuralNetwork {
         if (line.perceptron1.activateValue > 0) {
 
             el.classList.add("lineConnection")
-        } else el.classList.remove("lineConnection")
+
+            line.lastConnection = line.date.getTime()
+        } 
+        else if (line.date.getTime() - 50 > line.lastConnection) {
+
+            el.classList.remove("lineConnection")
+        }
     }
     updateVisuals() {
 
@@ -551,10 +559,6 @@ class NeuralNetwork {
             for (let perceptron1Name in layer.perceptrons) {
 
                 let perceptron1 = layer.perceptrons[perceptron1Name]
-
-                // Show perceptrons activateValue
-
-                perceptron1.visual.innerText = Math.floor(perceptron1.activateValue)
 
                 // Find layer after this one
 

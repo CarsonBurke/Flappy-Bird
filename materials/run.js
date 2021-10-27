@@ -55,56 +55,6 @@ function createNetwork(bird, inputCount, outputCount) {
     bird.network = network
 }
 
-
-function changeDirection(bird) {
-
-    let lastLayer = bird.network.layers[Object.keys(bird.network.layers).length - 1]
-
-    // Loop through each perceptron in the lastLayer
-
-    for (let perceptronName in lastLayer.perceptrons) {
-
-        let perceptron = lastLayer.perceptrons[perceptronName]
-
-        if (perceptron.activateValue <= 0) continue
-
-        //
-
-        let option = options[Object.keys(options)[perceptronName]]
-
-        option(bird)
-    }
-}
-
-function findDistance(pos1, pos2) {
-
-    let distance = Math.sqrt(Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.y - pos2.y, 2))
-    return distance
-}
-
-function findClosestFood(bird) {
-
-    let foodArray = getFoodArray()
-
-    // 
-
-    let lowestValue = Math.min.apply(Math, foodArray.map(food => findDistance(food, bird)))
-
-    bird.el.innerText = Math.floor(lowestValue)
-
-    //
-
-    let closestFood = foodArray.filter(food => findDistance(food, bird) == lowestValue)[0]
-
-    return closestFood
-}
-
-
-function isBirdOnFood(bird, closestFood) {
-
-    if (closestFood.x == bird.x && closestFood.y == bird.y) return true
-}
-
 function findBirdsWithMostScore(birds) {
 
     // 
@@ -120,45 +70,7 @@ function findBirdsWithMostScore(birds) {
     return bestBirds
 }
 
-function findBestBirds(birds) {
-
-    //
-
-    let bestBirds = findBirdsWithMostScore(birds)
-    if (bestBirds.length > 0) return bestBirds
-
-    // Find bird closest to a food
-
-    let birdsWithDistance = []
-
-    for (let bird of birds) {
-
-        let closestFood = findClosestFood(bird)
-
-        let distance = Math.sqrt(Math.pow(closestFood.x - bird.x, 2) + Math.pow(closestFood.y - bird.y, 2))
-
-        birdsWithDistance.push({ bird: bird, food: closestFood, distance: distance })
-    }
-
-    //
-
-    bestBirdsWithDistance = birdsWithDistance.sort((a, b) => b.distance - a.distance)
-
-    //
-
-    bestBirdsWithDistance = bestBirdsWithDistance.slice(0, 10)
-
-    //
-
-    for (let object of bestBirdsWithDistance) {
-
-        bestBirds.push(object.bird)
-    }
-
-    return bestBirds
-}
-
-function reproduce(bestBird, birds, tick) {
+function reproduce(bestBird, tick) {
 
     // Record stats
 
@@ -289,9 +201,9 @@ function run(opts) {
 
     function runBatch() {
 
-        let birds = Object.values(objects.bird)
+        const birds = Object.values(objects.bird)
 
-        for (let bird of birds) {
+        for (const bird of birds) {
 
             // Stop loop if there is only 1 bird
 
@@ -437,7 +349,7 @@ function run(opts) {
 
         //
 
-        let bestBird = findBestBird(birds)
+        const bestBird = findBestBird(birds)
 
         if (bestBird.pipesPassed > mostPipesPassed) mostPipesPassed = bestBird.pipesPassed
 
@@ -453,7 +365,7 @@ function run(opts) {
 
             // Reproduce with alive bird
 
-            reproduce(bestBird, Object.values(objects.bird), tick)
+            reproduce(bestBird, tick)
         }
     }
 }
