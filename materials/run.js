@@ -12,7 +12,7 @@ function createNetwork(bird, inputCount, outputCount) {
 
     // Create layers
 
-    let layerCount = 2
+    let layerCount = 3
 
     for (let i = 0; i < layerCount; i++) network.addLayer({})
 
@@ -66,7 +66,7 @@ function changeDirection(bird) {
 
         let perceptron = lastLayer.perceptrons[perceptronName]
 
-        if (perceptron.activateValue > 0) continue
+        if (perceptron.activateValue <= 0) continue
 
         //
 
@@ -175,23 +175,6 @@ function reproduce(bestBird, birds, tick) {
         }
     }
 
-    // Loop through layers
-
-    for (let bird of birds) {
-
-        // Hide visuals
-
-        bird.network.visualsParent.classList.remove("visualsParentShow")
-
-        // Iterate if bird is bestBird
-
-        if (bird.id == bestBird.id) continue
-
-        // Delete bird
-
-        delete objects.bird[bird.id]
-    }
-
     createBackground()
 
     generatePipes()
@@ -205,6 +188,10 @@ function reproduce(bestBird, birds, tick) {
 
         createBird({ network: duplicateNetwork })
     }
+
+    // Hide bestBird's visuals
+
+    bestBird.network.visualsParent.classList.remove("visualsParentShow")
 
     // Delete bestBird
 
@@ -348,8 +335,8 @@ function run(opts) {
 
             //
 
-            const inputs = [bird.y, gapHeight / 2 - (map.el.height + closestTopPipe.y), bird.velocity]
-            /* const inputs = [bird.y, gapHeight / 2 - (map.el.height + closestTopPipe.y), (bird.x + bird.width) - closestTopPipe.x] */
+            /* const inputs = [bird.y, closestTopPipe.y + closestTopPipe.height + map.el.height, bird.velocity] */
+            const inputs = [bird.y, gapHeight / 2 - (map.el.height + closestTopPipe.y), (bird.x + bird.width) - closestTopPipe.x]
             const outputCount = Object.keys(options).length
 
             //
@@ -393,6 +380,26 @@ function run(opts) {
             if (bird.y == 0) delete objects.bird[bird.id]
             if (bird.y + bird.height >= map.el.height) delete objects.bird[bird.id]
 
+            //
+            
+            function isBirdInsidePipe(pipe) {
+
+                if (bird.x > pipe.x + pipe.width) return
+
+                if (bird.x + bird.width < pipe.x) return
+
+                if (pipe.pipeType == 'top') {
+
+                    if (bird.y > pipe.y + pipe.height) return
+                    return true
+                }
+                if (pipe.pipeType == 'bottom') {
+
+                    if (bird.y + bird.height < pipe.y) return
+                    return true
+                }
+            }
+
             // apply pipe hitboxes
 
             for (let pipeID in objects.pipe) {
@@ -412,35 +419,20 @@ function run(opts) {
                     pipe.passed = true
                 }
 
-                if (pipe.pipeType == 'top') {
+                if(isBirdInsidePipe(pipe)) {
 
-                    // If bird is inside pipe
-
-                    if (bird.x + bird.width >= pipe.x && bird.x <= pipe.x && bird.y <= map.el.height + pipe.y) {
-
-                        // Delete bird
-
-                        delete objects.bird[bird.id]
-                    }
-
-                    continue
-                }
-                if (pipe.pipeType == 'bottom') {
-
-                    // If bird is inside pipe
-
-                    if (bird.x + bird.width >= pipe.x && bird.x <= pipe.x && bird.y + bird.height >= pipe.y) {
-
-                        // Delete bird
-                        
-                        delete objects.bird[bird.id]
-                    }
-                    
-                    continue
+                    delete objects.bird[bird.id]
                 }
             }
+        }
 
-            bird.network.visualsParent.classList.remove('visualsParentShow')
+        //
+
+        const visibleVisualParents = document.getElementsByClassName('visualsParentShow')
+
+        for (const visibleVisualParent of visibleVisualParents) {
+
+            visibleVisualParent.classList.remove('visualsParentShow')
         }
 
         //
@@ -464,12 +456,4 @@ function run(opts) {
             reproduce(bestBird, Object.values(objects.bird), tick)
         }
     }
-}
-
-function setPosition(bird) {
-
-    let el = bird.el
-
-    el.style.top = gridPartSize * bird.y + "px"
-    el.style.left = gridPartSize * bird.x + "px"
 }

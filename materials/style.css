@@ -166,7 +166,6 @@ body {
     top: 10px;
     display: flex;
     pointer-events: none;
-    transition: all 0.2s;
     z-index: 1000;
     opacity: 0;
 }
@@ -219,6 +218,10 @@ body {
 .line {
     stroke: rgba(0, 0, 0, 0.75);
     stroke-width: 1.5px;
+}
+
+.lineDisconnected {
+    /* opacity: 0; */
 }
 
 .lineConnection {

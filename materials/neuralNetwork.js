@@ -349,8 +349,6 @@ class NeuralNetwork {
 
                 for (let perceptron2Name in proceedingLayer.perceptrons) {
 
-                    let perceptron2 = proceedingLayer.perceptrons[perceptron2Name]
-
                     let perceptronCount = Object.keys(layer.perceptrons).length
 
                     let lineID = parseInt(perceptron1Name) * perceptronCount + parseInt(perceptron2Name)
@@ -505,7 +503,7 @@ class NeuralNetwork {
 
             // Show line element
 
-            line.el.classList.remove('disconnectedLine')
+            line.el.classList.remove('lineDisconnected')
 
             // Record that the line is connected
 
@@ -524,7 +522,7 @@ class NeuralNetwork {
 
             // Hide line element
 
-            line.el.classList.add('disconnectedLine')
+            line.el.classList.add('lineDisconnected')
 
             // Record that the line is disconnected
 
@@ -556,7 +554,7 @@ class NeuralNetwork {
 
                 // Show perceptrons activateValue
 
-                perceptron1.visual.innerText = (perceptron1.activateValue).toFixed(2)
+                perceptron1.visual.innerText = Math.floor(perceptron1.activateValue)
 
                 // Find layer after this one
 
@@ -575,10 +573,6 @@ class NeuralNetwork {
                     let lineID = parseInt(perceptron1Name) * perceptronCount + parseInt(perceptron2Name)
 
                     let line = layer.lines[lineID]
-
-                    // Iterate if there is no line
-
-                    if (!line) continue
 
                     this.updateLine(line)
                 }
