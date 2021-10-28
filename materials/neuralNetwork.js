@@ -22,6 +22,8 @@ class Line {
             this[propertyName] = opts[propertyName]
         }
 
+        this.connected = true
+
         // Create element
 
         let x1 = Math.floor(this.perceptron1.visual.getBoundingClientRect().left)
@@ -51,6 +53,8 @@ class Perceptron {
 
             this[propertyName] = opts[propertyName]
         }
+
+        this.weights = []
     }
     mutateWeights() {
 
@@ -68,21 +72,27 @@ class Perceptron {
 
             // Apply mutation
 
-            if (boolean == 0) value += Math.random() * mutation
-            if (boolean == 1) value -= Math.random() * mutation
+            if (boolean == 0) {
 
-            return value
+                value += Math.random() * mutation
+                return value
+            }
+            if (boolean == 1) {
+
+                value -= Math.random() * mutation
+                return value
+            }
         }
 
         // Mutate weights
 
         let newWeights = []
 
-        for (let weight of this.weights) newWeights.push(mutate(weight, this.learningRate))
+        for (let weight of this.weights) newWeights.push(mutate(weight, this.network.learningRate))
 
         this.weights = newWeights
     }
-    createWeights() {
+    createWeights(inputs) {
 
         // Create one weight perceptron in previous layer
 
@@ -90,7 +100,14 @@ class Perceptron {
 
         // Find previous layer
 
-        let iterations = this.inputs.length
+        let iterations = 1
+
+        // If layerName is 0
+
+        if (this.layerName == 0) {
+
+            iterations += inputs.length
+        }
 
         // If perceptron's layerName is more than 0
 
@@ -103,14 +120,10 @@ class Perceptron {
             // Find number of perceptrons in previous layer
 
             let previousLayerPerceptronCount = Object.keys(previousLayer.perceptrons).length
-            
-            // Account for bias
-
-            previousLayerPerceptronCount += 1
 
             // Change iterations to number of perceptrons in previous layer
             
-            iterations = previousLayerPerceptronCount
+            iterations += previousLayerPerceptronCount
         }
 
         // Iterate for number of perceptrons in previous layer
@@ -119,10 +132,10 @@ class Perceptron {
 
             // Get a random value relative to the size of learningRate
 
-            let value = Math.random() * this.learningRate
+            let value = Math.random() * this.network.learningRate
 
             // Add value to weights
-
+            
             this.weights.push(value)
         }
     }
@@ -134,28 +147,18 @@ class Perceptron {
 
         let i = 0
 
-        for (let input of this.inputs) {
+        for (const input of this.inputs) {
 
             // Find weight corresponding to input
-
+            
             const weight = this.weights[i]
-
+            
             // Assign weight to input and add value to weightResults
-
+            
             this.weightResults.push(input * weight)
 
             i++
         }
-    }
-    applyWeights() {
-
-        // If no weights exist create them
-
-        if (!this.weights) this.createWeights()
-
-        // Update weightResults to match inputs
-
-        this.updateWeights()
     }
     transfer() {
 
@@ -167,22 +170,13 @@ class Perceptron {
 
         this.activateValue = Math.max(this.transferValue, 0)
     }
-    run(opts) {
+    run(inputs) {
 
-        // Assign opts to usable values
-
-        let importantValues = opts.importantValues
-
-        for (let valueName in importantValues) {
-
-            this[valueName] = importantValues[valueName]
-        }
-
-        this.inputs = opts.inputs
+        this.inputs = inputs
 
         // Run commands to take inputs into an end result
-
-        this.applyWeights()
+        
+        this.updateWeights()
 
         this.transfer()
 
@@ -198,6 +192,7 @@ class Layer {
             this[propertyName] = opts[propertyName]
         }
 
+        this.perceptrons = {}
         this.lines = {}
     }
     addPerceptron() {
@@ -241,26 +236,14 @@ class NeuralNetwork {
     }
     addLayer(opts) {
 
-        let layersCount = Object.keys(this.layers).length
+        let layerCount = Object.keys(this.layers).length
 
-        this.layers[layersCount] = new Layer({
+        this.layers[layerCount] = new Layer({
             network: this,
-            name: layersCount,
-            perceptrons: opts.perceptrons || {},
+            name: layerCount,
         })
 
-        return this.layers[layersCount]
-    }
-    getImportantValues() {
-
-        let values = {}
-
-        for (let valueName in defaults) {
-
-            values[valueName] = this[valueName]
-        }
-
-        return values
+        return this.layers[layerCount]
     }
     forwardPropagate(inputs) {
 
@@ -323,10 +306,7 @@ class NeuralNetwork {
 
                 // Run the perceptron
 
-                perceptron.run({
-                    importantValues: this.getImportantValues(),
-                    inputs: findInputs(layerName, perceptron),
-                })
+                perceptron.run(findInputs(layerName, perceptron))
             }
         }
     }
@@ -469,9 +449,6 @@ class NeuralNetwork {
                         id: lineID
                     })
 
-                    line.connected = true
-                    line.el.classList.add('lineShow')
-
                     this.mutateLine(line)
                 }
             }
@@ -501,7 +478,7 @@ class NeuralNetwork {
 
             // Show line element
 
-            line.el.classList.add('lineShow')
+            line.el.classList.remove('lineDisconnected')
 
             // Record that the line is connected
 
@@ -519,7 +496,7 @@ class NeuralNetwork {
 
             // Hide line element
 
-            line.el.classList.remove('lineShow')
+            line.el.classList.add('lineDisconnected')
 
             // Record that the line is disconnected
 
@@ -544,13 +521,13 @@ class NeuralNetwork {
 
             // Loop through perceptrons in the layer
 
-            for (const perceptron1Name in layer.perceptrons) {
+            for (const perceptronName in layer.perceptrons) {
 
-                const perceptron1 = layer.perceptrons[perceptron1Name]
+                const perceptron = layer.perceptrons[perceptronName]
 
                 // Show perceptrons activateValue
 
-                perceptron1.visual.innerText = (perceptron1.activateValue).toFixed(2)
+                perceptron.visual.innerText = (perceptron.activateValue).toFixed(2)
             }
 
             // Loop through lines in layer
@@ -562,5 +539,70 @@ class NeuralNetwork {
                 this.updateLine(line)
             }
         }
+    }
+    init(inputs) {
+
+        this.createVisuals()
+
+        for (const layerName in this.layers) {
+
+            const layer = this.layers[layerName]
+
+            // Loop through perceptrons in the layer
+
+            for (const perceptronName in layer.perceptrons) {
+
+                const perceptron = layer.perceptrons[perceptronName]
+
+                // Find layer after this one
+
+                if (layerName == 0) {
+
+                    perceptron.createWeights(inputs)
+                    continue
+                }
+
+                const preceedingLayer = this.layers[parseInt(layerName) - 1]
+
+                const inputCount = Object.keys(preceedingLayer.lines).length / Object.keys(layer.perceptrons).length
+
+                let fakeInputs = []
+
+                for (let i = 0; i < inputCount; i++) fakeInputs.push(0)
+
+                perceptron.createWeights(fakeInputs)
+            }
+        }
+    }
+    clone(inputs) {
+
+        // Create new neural net
+
+        const newNetwork = new NeuralNetwork()
+
+        for (const layerName in this.layers) {
+
+            const layer = this.layers[layerName]
+
+            newNetwork.addLayer({})
+
+            const newLayer = newNetwork.layers[layerName]
+
+            for (const perceptronName in layer.perceptrons) {
+
+                const perceptron = layer.perceptrons[perceptronName]
+                
+                newLayer.addPerceptron()
+                const newPerceptron = newLayer.perceptrons[perceptronName]
+                
+                newPerceptron.weights = perceptron.weights
+            }
+        }
+
+        // Initialize newNetwork
+
+        newNetwork.init(inputs)
+
+        return newNetwork
     }
 }

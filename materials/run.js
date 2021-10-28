@@ -5,7 +5,7 @@ let birdsCount = 0
 let bestScore = 0
 let mostPipesPassed = 0
 
-function createNetwork(bird, inputCount, outputCount) {
+function createNetwork(bird, inputs, outputCount) {
 
     // Create neural network
 
@@ -21,7 +21,7 @@ function createNetwork(bird, inputCount, outputCount) {
 
     // Create input perceptrons
 
-    for (let i = 0; i < inputCount; i++) network.layers[0].addPerceptron()
+    for (let i = 0; i < inputs.length; i++) network.layers[0].addPerceptron()
 
     // Create hidden perceptrons
 
@@ -49,7 +49,7 @@ function createNetwork(bird, inputCount, outputCount) {
 
     //
 
-    network.createVisuals()
+    network.init(inputs)
 
     //
 
@@ -255,7 +255,7 @@ function run(opts) {
 
             //
 
-            if (!bird.network) createNetwork(bird, inputs.length, outputCount)
+            if (!bird.network) createNetwork(bird, inputs, outputCount)
 
             //
 
