@@ -1,5 +1,14 @@
+let idIndex = 0
+
+function newID() {
+
+    // Increment idIndex and return the result
+
+    return idIndex += 1
+}
+
 let defaults = {
-    learningRate: 0.4,
+    learningRate: 0.1,
     bias: 0,
 }
 
@@ -13,17 +22,13 @@ class Line {
             this[propertyName] = opts[propertyName]
         }
 
-        this.connected = true
-        this.date = new Date()
-        this.lastConnection = this.date.getTime()
-
         // Create element
 
-        let x1 = this.perceptron1.visual.getBoundingClientRect().left
-        let y1 = this.perceptron1.visual.getBoundingClientRect().top
+        let x1 = Math.floor(this.perceptron1.visual.getBoundingClientRect().left)
+        let y1 = Math.floor(this.perceptron1.visual.getBoundingClientRect().top)
 
-        let x2 = this.perceptron2.visual.getBoundingClientRect().left
-        let y2 = this.perceptron2.visual.getBoundingClientRect().top
+        let x2 = Math.floor(this.perceptron2.visual.getBoundingClientRect().left)
+        let y2 = Math.floor(this.perceptron2.visual.getBoundingClientRect().top)
 
         let el = document.createElementNS('http://www.w3.org/2000/svg', 'line')
 
@@ -278,7 +283,7 @@ class NeuralNetwork {
 
             const previousLayer = network.layers[layerName - 1]
 
-            for (let lineID in previousLayer.lines) {
+            for (const lineID in previousLayer.lines) {
 
                 const line = previousLayer.lines[lineID]
 
@@ -286,19 +291,19 @@ class NeuralNetwork {
 
                 if (line.perceptron2 != perceptron) continue
 
-                // If line is not connected
+                // If line is connected
 
-                if (!line.connected) {
+                if (line.connected) {
 
-                    // Add 0 to newInputs
+                    // Add line's perceptron activateValue to inputs
 
-                    newInputs.push(0)
+                    newInputs.push(line.perceptron1.activateValue)
                     continue
                 }
 
-                // Add line's perceptron activateValue to inputs
+                // Add 0 to newInputs
 
-                newInputs.push(line.perceptron1.activateValue)
+                newInputs.push(0)
             }
             
             return newInputs
@@ -327,38 +332,30 @@ class NeuralNetwork {
     }
     learn() {
 
-        for (let layerName in this.layers) {
+        // Loop through layers in network
 
-            let layer = this.layers[layerName]
+        for (const layerName in this.layers) {
 
-            // loop through perceptrons in the layer
+            const layer = this.layers[layerName]
 
-            for (let perceptron1Name in layer.perceptrons) {
+            // Loop through perceptrons in the layer
 
-                let perceptron1 = layer.perceptrons[perceptron1Name]
+            for (const perceptronName in layer.perceptrons) {
+
+                const perceptron = layer.perceptrons[perceptronName]
 
                 // Mutate perceptron
 
-                perceptron1.mutateWeights()
+                perceptron.mutateWeights()
+            }
 
-                // Find layer after this one
+            // Loop through lines in layer
 
-                let proceedingLayer = this.layers[parseInt(layerName) + 1]
+            for (const lineID in layer.lines) {
 
-                if (!proceedingLayer) continue
+                const line = layer.lines[lineID]
 
-                // Loop through each perceptron in the next layer and draw a line
-
-                for (let perceptron2Name in proceedingLayer.perceptrons) {
-
-                    let perceptronCount = Object.keys(layer.perceptrons).length
-
-                    let lineID = parseInt(perceptron1Name) * perceptronCount + parseInt(perceptron2Name)
-
-                    let line = layer.lines[lineID]
-
-                    this.mutateLine(line)
-                }
+                this.mutateLine(line)
             }
         }
 
@@ -441,40 +438,39 @@ class NeuralNetwork {
     }
     createLines() {
 
-        for (let layerName in this.layers) {
+        for (const layerName in this.layers) {
 
-            let layer = this.layers[layerName]
+            const layer = this.layers[layerName]
 
             // loop through perceptrons in the layer
 
-            for (let perceptron1Name in layer.perceptrons) {
+            for (const perceptron1Name in layer.perceptrons) {
 
-                let perceptron1 = layer.perceptrons[perceptron1Name]
+                const perceptron1 = layer.perceptrons[perceptron1Name]
 
                 // Find layer after this one
 
-                let proceedingLayer = this.layers[parseInt(layerName) + 1]
+                const proceedingLayer = this.layers[parseInt(layerName) + 1]
 
                 if (!proceedingLayer) continue
 
                 // Loop through each perceptron in the next layer and draw a line
 
-                for (let perceptron2Name in proceedingLayer.perceptrons) {
+                for (const perceptron2Name in proceedingLayer.perceptrons) {
 
-                    let perceptron2 = proceedingLayer.perceptrons[perceptron2Name]
+                    const perceptron2 = proceedingLayer.perceptrons[perceptron2Name]
 
-                    let perceptronCount = Object.keys(layer.perceptrons).length
+                    const lineID = newID()
 
-                    let lineID = parseInt(perceptron1Name) * perceptronCount + parseInt(perceptron2Name)
-
-                    layer.lines[lineID] = new Line({
+                    const line = layer.lines[lineID] = new Line({
                         network: this,
                         perceptron1: perceptron1,
                         perceptron2: perceptron2,
                         id: lineID
                     })
 
-                    let line = layer.lines[lineID]
+                    line.connected = true
+                    line.el.classList.add('lineShow')
 
                     this.mutateLine(line)
                 }
@@ -498,19 +494,18 @@ class NeuralNetwork {
         // Enable line if 0
 
         if (boolean == 0) {
-
+            
             // Stop if line is already connected
 
             if (line.connected) return
 
             // Show line element
 
-            line.el.classList.remove('lineDisconnected')
+            line.el.classList.add('lineShow')
 
             // Record that the line is connected
 
             line.connected = true
-
             return
         }
 
@@ -524,12 +519,11 @@ class NeuralNetwork {
 
             // Hide line element
 
-            line.el.classList.add('lineDisconnected')
+            line.el.classList.remove('lineShow')
 
             // Record that the line is disconnected
 
             line.connected = false
-
             return
         }
     }
@@ -537,49 +531,35 @@ class NeuralNetwork {
 
         let el = line.el
 
-        if (line.perceptron1.activateValue > 0) {
+        if (line.connected && line.perceptron1.activateValue > 0) {
 
-            el.classList.add("lineConnection")
-
-            line.lastConnection = line.date.getTime()
-        } 
-        else if (line.date.getTime() - 50 > line.lastConnection) {
-
-            el.classList.remove("lineConnection")
-        }
+            el.classList.add("lineConnected")
+        } else el.classList.remove("lineConnected")
     }
     updateVisuals() {
 
-        for (let layerName in this.layers) {
+        for (const layerName in this.layers) {
 
-            let layer = this.layers[layerName]
+            const layer = this.layers[layerName]
 
-            // loop through perceptrons in the layer
+            // Loop through perceptrons in the layer
 
-            for (let perceptron1Name in layer.perceptrons) {
+            for (const perceptron1Name in layer.perceptrons) {
 
-                let perceptron1 = layer.perceptrons[perceptron1Name]
+                const perceptron1 = layer.perceptrons[perceptron1Name]
 
-                // Find layer after this one
+                // Show perceptrons activateValue
 
-                let proceedingLayer = this.layers[parseInt(layerName) + 1]
+                perceptron1.visual.innerText = (perceptron1.activateValue).toFixed(2)
+            }
 
-                if (!proceedingLayer) continue
+            // Loop through lines in layer
 
-                // Loop through each perceptron in the next layer and draw a line
+            for (const lineID in layer.lines) {
 
-                for (let perceptron2Name in proceedingLayer.perceptrons) {
+                const line = layer.lines[lineID]
 
-                    // Get line
-
-                    let perceptronCount = Object.keys(layer.perceptrons).length
-
-                    let lineID = parseInt(perceptron1Name) * perceptronCount + parseInt(perceptron2Name)
-
-                    let line = layer.lines[lineID]
-
-                    this.updateLine(line)
-                }
+                this.updateLine(line)
             }
         }
     }

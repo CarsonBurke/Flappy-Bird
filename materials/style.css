@@ -218,13 +218,14 @@ body {
 .line {
     stroke: rgba(0, 0, 0, 0.75);
     stroke-width: 1.5px;
+    opacity: 0;
 }
 
-.lineDisconnected {
-    /* opacity: 0; */
+.lineShow {
+    opacity: 1;
 }
 
-.lineConnection {
+.lineConnected {
     stroke: rgba(14, 81, 226, 0.75);
 }
 
