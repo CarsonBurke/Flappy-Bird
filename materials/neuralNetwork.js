@@ -510,8 +510,8 @@ class NeuralNetwork {
 
         if (line.connected && line.perceptron1.activateValue > 0) {
 
-            el.classList.add("lineConnected")
-        } else el.classList.remove("lineConnected")
+            el.classList.add("lineActive")
+        } else el.classList.remove("lineActive")
     }
     updateVisuals() {
 

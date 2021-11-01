@@ -5,7 +5,7 @@ let birdsCount = 0
 let bestScore = 0
 let mostPipesPassed = 0
 
-function createNetwork(bird, inputs, outputCount) {
+function createNetwork(bird, outputCount) {
 
     // Create neural network
 
@@ -21,7 +21,7 @@ function createNetwork(bird, inputs, outputCount) {
 
     // Create input perceptrons
 
-    for (let i = 0; i < inputs.length; i++) network.layers[0].addPerceptron()
+    for (let i = 0; i < bird.inputs.length; i++) network.layers[0].addPerceptron()
 
     // Create hidden perceptrons
 
@@ -49,7 +49,7 @@ function createNetwork(bird, inputs, outputCount) {
 
     //
 
-    network.init(inputs)
+    network.init(bird.inputs)
 
     //
 
@@ -82,13 +82,13 @@ function reproduce(bestBird, tick) {
 
     for (let type in objects) {
 
+        if (type == 'background') continue
+
         for (let objectID in objects[type]) {
 
             delete objects[type][objectID]
         }
     }
-
-    createBackground()
 
     generatePipes()
 
@@ -96,19 +96,12 @@ function reproduce(bestBird, tick) {
 
     for (let i = 0; i < 100; i++) {
 
-        const duplicateNetwork = _.cloneDeep(bestBird.network)
-        duplicateNetwork.learn()
+        const duplicateNetwork = bestBird.network.clone(bestBird.inputs)
 
         createBird({ network: duplicateNetwork })
     }
 
-    // Hide bestBird's visuals
-
-    bestBird.network.visualsParent.classList.remove("visualsParentShow")
-
-    // Delete bestBird
-
-    delete objects.bird[bestBird.id]
+    killBird(bestBird)
 }
 
 function findBestBird(birds) {
@@ -122,6 +115,25 @@ function findSprite(bird) {
     if (bird.velocity == 0) return document.getElementById("bird")
     if (bird.velocity < 0) return document.getElementById("birdUp")
     if (bird.velocity > 0) return document.getElementById("birdDown")
+}
+
+function killBirdIfOutOfBounds(bird) {
+
+    if (bird.x == 0
+    || bird.x + bird.width == map.el.width
+    || bird.y == 0
+    || bird.y + bird.height >= map.el.height) killBird(bird)
+}
+
+function killBird(bird) {
+
+    // Delete visualsParent
+
+    bird.network.visualsParent.remove()
+
+    // Delete object
+
+    delete objects.bird[bird.id]
 }
 
 function movePipes() {
@@ -250,16 +262,16 @@ function run(opts) {
             //
 
             /* const inputs = [bird.y, closestTopPipe.y + closestTopPipe.height + map.el.height, bird.velocity] */
-            const inputs = [bird.y, gapHeight - (map.el.height + closestTopPipe.y), bird.x + bird.width - closestTopPipe.x, bird.velocity]
+            bird.inputs = [bird.y, gapHeight - (map.el.height + closestTopPipe.y), bird.x + bird.width - closestTopPipe.x, bird.velocity]
             const outputCount = Object.keys(options).length
 
             //
 
-            if (!bird.network) createNetwork(bird, inputs, outputCount)
+            if (!bird.network) createNetwork(bird, outputCount)
 
             //
 
-            bird.network.forwardPropagate(inputs)
+            bird.network.forwardPropagate(bird.inputs)
 
             //
 
@@ -287,12 +299,9 @@ function run(opts) {
                 image: findSprite(bird),
             })
 
-            // Apply map hitboxes
+            // Apply map hitboxes, kill bird if touching edges
 
-            if (bird.x == 0) delete objects.bird[bird.id]
-            if (bird.x + bird.width == map.el.width) delete objects.bird[bird.id]
-            if (bird.y == 0) delete objects.bird[bird.id]
-            if (bird.y + bird.height >= map.el.height) delete objects.bird[bird.id]
+            killBirdIfOutOfBounds(bird)
 
             //
 
@@ -333,10 +342,7 @@ function run(opts) {
                     pipe.passed = true
                 }
 
-                if (isBirdInsidePipe(pipe)) {
-
-                    delete objects.bird[bird.id]
-                }
+                if (isBirdInsidePipe(pipe)) killBird(bird)
             }
         }
 
