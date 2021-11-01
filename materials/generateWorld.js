@@ -14,13 +14,15 @@ function initializeMap() {
 
 function createBackground() {
 
+    const imageEl = document.getElementById("background")
+
     new Sprite({
         type: "background",
         x: 0,
         y: 0,
-        width: map.el.width,
+        width: Math.max(imageEl.naturalWidth, map.el.width),
         height: map.el.height,
-        image: document.getElementById("background"),
+        image: imageEl,
     }).draw()
 }
 
