@@ -8,7 +8,7 @@ function newID() {
 }
 
 let defaults = {
-    learningRate: 0.1,
+    learningRate: 0.2,
     bias: 0,
 }
 
@@ -584,9 +584,13 @@ class NeuralNetwork {
 
             const layer = this.layers[layerName]
 
+            // Create layer for newNetwork
+
             newNetwork.addLayer({})
 
             const newLayer = newNetwork.layers[layerName]
+
+            // Loop through perceptrons in layer
 
             for (const perceptronName in layer.perceptrons) {
 
@@ -602,6 +606,38 @@ class NeuralNetwork {
         // Initialize newNetwork
 
         newNetwork.init(inputs)
+
+        // Assign line properties to newNetwork
+
+        for (const layerName in this.layers) {
+
+            const layer = this.layers[layerName]
+
+            const newLayer = newNetwork.layers[layerName]
+
+            // Count iterations
+
+            let i = 0
+
+            for (const lineID in layer.lines) {
+
+                const line = layer.lines[lineID]
+
+                const newLayerLineID = Object.keys(newLayer.lines)[i]
+
+                // Assign line property to newNetwork's adjacent line
+                
+                newLayer.lines[newLayerLineID].connected = line.connected
+
+                //
+
+                newLayer.lines[newLayerLineID].el.classList = line.el.classList
+
+                // Record iteration
+
+                i++
+            }
+        }
 
         return newNetwork
     }
