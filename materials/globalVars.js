@@ -6,6 +6,7 @@ let properties = {
     flapDelay: 80,
     nextId: 0,
     gapHeight: 130,
+    speedMultiplier: 10000,
     map: {
         el: document.getElementById("map"),
         positions: [],

@@ -1,5 +1,3 @@
 initWorld()
 
-run({
-    tickSpeed: 1,
-})
+run(1)

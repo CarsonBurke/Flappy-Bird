@@ -191,9 +191,15 @@ function updateUI() {
     el.innerText = mostPipesPassed
 }
 
-function run(opts) {
+function run(tickSpeed) {
 
-    setInterval(runTick, opts.tickSpeed)
+    let i = 0
+
+    while (i < speedMultiplier) {
+
+        setInterval(runTick, tickSpeed)
+        i++
+    }
 
     function runTick() {
 
