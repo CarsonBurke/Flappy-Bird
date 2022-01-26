@@ -143,7 +143,7 @@ function movePipes() {
         let pipe = objects.pipe[pipeID]
 
         pipe.move({
-            x: pipe.x - 0.4,
+            x: pipe.x - 2,
             y: pipe.y,
         })
 
@@ -203,13 +203,13 @@ function run(tickSpeed) {
 
     function runTick() {
 
-        tick += 1
+        tick++
 
         movePipes()
 
         // If tick is divisible by 750 spawn new pipes
 
-        if (tick - lastReset >= 750 && tick % 750 == 0) generatePipes()
+        if (tick - lastReset >= 300 && tick % 300 == 0) generatePipes()
 
         runBatch()
 
@@ -235,11 +235,11 @@ function run(tickSpeed) {
 
             // Apply gravity
 
-            bird.velocity += 0.005
+            bird.velocity += 0.05
 
             // Regulate max acceleration
 
-            let maxSpeed = 1.2
+            let maxSpeed = 3
 
             // If birds velocity is greater or equal to maxSpeed set to maxSpeed
 
