@@ -193,13 +193,16 @@ function updateUI() {
 
 function run(tickSpeed) {
 
-    let i = 0
+/*     let i = 0
 
     while (i < speedMultiplier) {
 
         setInterval(runTick, tickSpeed)
         i++
-    }
+    } */
+
+    setInterval(runTick, tickSpeed)
+
 
     function runTick() {
 
@@ -207,7 +210,7 @@ function run(tickSpeed) {
 
         movePipes()
 
-        // If tick is divisible by 750 spawn new pipes
+        // If tick is divisible by 300 spawn new pipes
 
         if (tick - lastReset >= 300 && tick % 300 == 0) generatePipes()
 
